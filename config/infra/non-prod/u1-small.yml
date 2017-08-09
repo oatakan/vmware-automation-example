@@ -1,0 +1,12 @@
+---
+nodes:
+  - disk:
+    - size_gb: 100
+      type: thin
+      autoselect_datastore: yes
+    domain: "{{ domain_name }}"
+    dns_servers:
+    - 8.8.4.4
+    memory: 2048
+    cpu: 1
+    template: "{{ template_name }}"

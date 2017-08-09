@@ -1,0 +1,8 @@
+- hosts: localhost
+  become: no
+  vars_files:
+    - "config/infra/{{ environment }}/main.yml"
+    - "config/infra/{{ environment }}/{{ size }}.yml"
+  roles:
+    - vmware-deploy
+
