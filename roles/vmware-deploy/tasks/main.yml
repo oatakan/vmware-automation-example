@@ -25,6 +25,9 @@
       domain: "{{ domain_name }}"
       dns_servers:
       - "{{ dns_server }}"
+    customization:
+      domain: "{{ item.1.domain }}"
+      dns_servers: "{{ item.1.dns_servers|default([]) }}"
   async: 7200
   poll: 0
   register: deploy
