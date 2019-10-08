@@ -1,8 +1,12 @@
 - hosts: localhost
   become: no
+  vars:
+    project_name: test
+    template_name: abc_template
+    size: medium
+    os_type: linux
   vars_files:
     - "config/infra/{{ environment }}/main.yml"
-    - "config/infra/{{ environment }}/{{ size }}.yml"
+    - "config/infra/{{ environment }}/{{ os_type[0:1] + '-' + size }}.yml"
   roles:
     - vmware-deploy
-

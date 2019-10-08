@@ -1,0 +1,10 @@
+---
+nodes:
+  - domain: "{{ domain_name }}"
+    dns_servers: "{{ dns_servers|default([8.8.8.8,8.8.4.4]) }}"
+    memory: 4096
+    cpu: 2
+    template: "{{ template_name }}"
+    customization:
+      domain: "{{ domain_name }}"
+      dns_servers: "{{ dns_servers|default([8.8.8.8,8.8.4.4]) }}"

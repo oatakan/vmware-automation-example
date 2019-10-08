@@ -1,0 +1,17 @@
+---
+nodes:
+  - domain: "{{ domain_name }}"
+    dns_servers: "{{ dns_servers|default([8.8.8.8,8.8.4.4]) }}"
+    memory: 8192
+    cpu: 2
+    template: "{{ template_name }}"
+    ansible_port: 5986
+    customization:
+      autologon: True
+      orgname: Ansible
+      fullname: Ansible
+      timezone: 20
+      password: '{{ ansible_password | default(ansible_ssh_password) }}'
+      runonce:
+        - powershell.exe -command "& $([scriptblock]::Create((New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1'))) -ForceNewSSLCert -EnableCredSSP"
+        - winrm set winrm/config/service/auth @{CredSSP="true"}

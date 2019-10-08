@@ -7,7 +7,6 @@
     validate_certs: no
     datacenter: "{{ datacenter }}"
     cluster: "{{ cluster }}"
-    folder: "{{ project_name |default(omit) }}"
     name: "dc-{{ project_name }}-{{ item.0 }}"
     template: "{{ item.1.template }}"
     state: poweredon
@@ -25,24 +24,42 @@
       domain: "{{ domain_name }}"
       dns_servers:
       - "{{ dns_server }}"
-    customization:
-      domain: "{{ item.1.domain }}"
-      dns_servers: "{{ item.1.dns_servers|default([]) }}"
+    customization: "{{ item.customization|default(omit) }}"
   async: 7200
   poll: 0
   register: deploy
-  with_indexed_items: "{{ nodes }}"
+  loop: "{{ nodes }}"
   when: nodes is defined
 
-- name: Wait for instance creation to complete
-  async_status: jid="{{ item.ansible_job_id }}"
-  register: instances
-  until: instances.finished
-  retries: 300
-  delay: 10
-  with_items: "{{ deploy.results }}"
+- name: add custom attributes
+  vmware_guest_custom_attributes:
+    hostname: "{{ lookup('env', 'VMWARE_HOST') }}"
+    username: "{{ lookup('env', 'VMWARE_USER') }}"
+    password: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    name: "{{ item.instance.hw_name }}"
+    state: present
+    attributes:
+      - name: app_name
+        value: "{{ project_name | default('') }}"
+      - name: role
+        value: "{{ server_role | default('') }}"
+  loop: "{{ instances.results }}"
+  when:
+    - instances is defined
+    - item.instance is defined
+  ignore_errors: yes
 
-- name: Waiting for servers to come online
-  wait_for: host="{{ item.instance.hw_eth0.ipaddresses[0] }}" port="22" search_regex=OpenSSH
-  with_items: "{{ instances.results }}"
-  when: (instances | changed) and (item.instance is defined)
+- debug:
+    var: item.item.item.networks[0].ip | default(item.instance.ipv4)
+  loop: "{{ instances.results }}"
+
+- name: waiting for servers to come online
+  wait_for:
+    host: "{{ item.item.item.networks[0].ip | default(item.instance.ipv4) }}"
+    port: "{{ item.item.item.ansible_port | default(ansible_port) | default('22') }}"
+    timeout: "{{ instance_wait_connection_timeout }}"
+  loop: "{{ instances.results }}"
+  when:
+    - instances is defined
+    - item.instance is defined
+  ignore_errors: yes
