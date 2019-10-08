@@ -1,12 +1,20 @@
 - hosts: localhost
   become: no
   vars:
+    env: non-prod
     project_name: test
     template_name: abc_template
     size: medium
     os_type: linux
+    network_name: abc
+    ip_address: 192.168.1.51
+    netmask: 255.255.255.0
+    gateway: 192.168.1.254
+    domain_name: example.com
+    dns_servers:
+      - 8.8.8.8
   vars_files:
-    - "config/infra/{{ environment }}/main.yml"
-    - "config/infra/{{ environment }}/{{ os_type[0:1] + '-' + size }}.yml"
+    - "config/infra/{{ env }}/main.yml"
+    - "config/infra/{{ env }}/{{ os_type[0:1] + '1-' + size }}.yml"
   roles:
     - vmware-deploy

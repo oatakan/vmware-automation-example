@@ -22,14 +22,22 @@
       netmask: "{{ netmask }}"
       gateway: "{{ gateway }}"
       domain: "{{ domain_name }}"
-      dns_servers:
-      - "{{ dns_server }}"
+      dns_servers: "{{ dns_servers }}"
     customization: "{{ item.customization|default(omit) }}"
   async: 7200
   poll: 0
   register: deploy
   loop: "{{ nodes }}"
   when: nodes is defined
+
+- name: wait for instance creation to complete
+  async_status:
+    jid: "{{ item.ansible_job_id }}"
+  register: instances
+  until: instances.finished
+  retries: "{{ instance_wait_retry_limit }}"
+  delay: 10
+  loop: "{{ deploy.results }}"
 
 - name: add custom attributes
   vmware_guest_custom_attributes:
