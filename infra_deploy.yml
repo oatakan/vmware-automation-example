@@ -4,6 +4,7 @@
     env: non-prod
     project_name: test
     template_name: abc_template
+    vm_folder:
     size: medium
     os_type: linux
     network_name: abc
