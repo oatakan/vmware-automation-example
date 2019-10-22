@@ -2,7 +2,7 @@
   become: no
   vars:
     env: non-prod
-    project_name: test
+    app_name: test
     template_name: abc_template
     vm_folder:
     size: medium
@@ -14,6 +14,7 @@
     domain_name: example.com
     dns_servers:
       - 8.8.8.8
+    server_role: webserver
   vars_files:
     - "config/infra/{{ env }}/main.yml"
     - "config/infra/{{ env }}/{{ os_type[0:1] + '1-' + size }}.yml"
